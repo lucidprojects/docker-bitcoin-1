@@ -7,37 +7,41 @@ services:
     environment:
       BITCOIN_EXTRA_ARGS: |
         testnet=1
-        rpcport=43782
-        rpcbind=0.0.0.0:43782
-        #port=39388
+        server=1
+        rpcport=8332
+        rpcallowip=127.0.0.1
+        rpcbind=127.0.0.1:8332
         port=18333
         whitelist=0.0.0.0/0
         maxmempool=500
         prune=550
+        rpcuser=uname
+        rpcpassword=pword
         # Options only for testnet
         [test]
         port=18333
-        testnet=1
-        rpcport=43782
-        rpcbind=0.0.0.0:43782
-        prune=550
+        rpcport=18332
+        rpcallowip=127.0.0.1
+        rpcbind=127.0.0.1
+        rpcbind=btctest_bitcoind
     # specify additional command line arguments here
-    command: bitcoind
+    command: bitcoind -testnet
     healthcheck:
       test: ["CMD", "/entrypoint.sh", "bitcoin-cli", "getinfo"]
     ports:
       # change to 18333 if running testnet / 8333 for mainnet
       - "18333:18333"
+    expose:
+      - "18332"
     volumes:
+      - /Volumes/rocket1tb/bitcoin-data:/data
       #- bitcoin-data:/data
-      #- /Volumes/rocket1tb/bitcoin-data:/data
-      - bitcoin-data:/data
     networks:
       - bitcoin
   bitcoin-cli:
     image: nicolasdorier/docker-bitcoin:0.19.1
     entrypoint: ["/entrypoint.sh", "bitcoin-cli"]
-    command: ""
+    command: bitcoin-cli -rpcuser=uname -rpcpassword=pword
     depends_on:
       - bitcoind
     network_mode: service:bitcoind
@@ -47,3 +51,4 @@ networks:
 
 volumes:
   bitcoin-data:
+
